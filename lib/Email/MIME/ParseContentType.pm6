@@ -17,10 +17,10 @@ grammar ContentTypeHeader {
         <name> \= <value>
     }
     token name {
-        \w+
+        [\w | \- | _]+
     }
     token value {
-        \w+
+        [\w | \- | _]+
     }
 }
 
