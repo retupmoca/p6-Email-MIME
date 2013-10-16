@@ -11,16 +11,16 @@ grammar ContentTypeHeader {
         \w+
     }
     token params {
-        \; [\s* <param>]* \s*
+        [\; \s* <param>]* \s*
     }
     token param {
-        <name> \= <value>
+        <name> \= \"?<value>\"?
     }
     token name {
-        [\w | \- | _]+
+        \w+
     }
     token value {
-        [\w | \- | _]+
+        <-[\s";]>+
     }
 }
 
