@@ -128,11 +128,11 @@ method encoding-set($enc) {
 
 method body-str {
     my $body = self.body;
-    if($body.isa('Str')){
+    if $body.isa('Str') {
         # if body is a Str, we assume it's already been decoded
         return $body;
     }
-    if($body.isa('Buf')){
+    if $body.isa('Buf') {
         my $charset = $!ct<attributes><charset>;
         unless $charset {
             if $!ct<discrete> eq 'text' && ($!ct<component> eq 'plain'
