@@ -77,6 +77,10 @@ method content-type(){
   return ~self.header("Content-type");
 }
 
+method as-string {
+    return self.header-obj.as-string ~ self.crlf ~ self.body-raw;
+}
+
 ###
 # content transfer encoding stuff here
 ###
