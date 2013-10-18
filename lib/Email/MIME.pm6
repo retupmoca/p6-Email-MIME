@@ -87,7 +87,7 @@ method as-string {
 
 my %cte-coders = ();
 
-method set-encoding-coder($cte, $coder) {
+method set-encoding-handler($cte, $coder) {
     %cte-coders{$cte} = $coder;
 }
 
