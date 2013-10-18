@@ -76,3 +76,64 @@ method parts-multipart {
 method content-type(){
   return ~self.header("Content-type");
 }
+
+###
+# content transfer encoding stuff here
+###
+
+my %cte-coders = ();
+
+method set-encoding-coder($cte, $coder) {
+    %cte-coders{$cte} = $coder;
+}
+
+method body {
+    my $body = callsame;
+    my $cte = ~self.header('Content-Transfer-Encoding') // '';
+    $cte ~~ s/\;.*$//;
+    $cte ~~ s:g/\s//;
+
+    if $cte && %cte-coders{$cte}.can('decode') {
+        return %cte-coders{$cte}.decode($body);
+    } else {
+        return $body;
+    }
+}
+
+method body-set($body) {
+    my $cte = ~self.header('Content-Transfer-Encoding') // '';
+    $cte ~~ s/\;.*$//;
+    $cte ~~ s:g/\s//;
+
+    my $body-encoded;
+    if $cte && %cte-coders{$cte}.can('encode') {
+        $body-encoded = %cte-coders{$cte}.encode($body);
+    } else {
+        $body-encoded = $body;
+    }
+
+    $!body-raw = $body-encoded;
+    callwith($body-encoded);
+}
+
+method encoding-set($enc) {
+    my $body = self.body;
+    self.header-set('Content-Transfer-Encoding', $enc);
+    self.body-set($body);
+}
+
+###
+# charset stuff here
+###
+
+method body-str {
+
+}
+
+method body-str-set($body) {
+
+}
+
+method header-str-set($header, $value) {
+
+}
