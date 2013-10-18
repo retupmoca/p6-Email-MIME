@@ -132,7 +132,7 @@ method body-str {
         # if body is a Str, we assume it's already been decoded
         return $body;
     }
-    if $body.isa('Buf') {
+    if $body.can('decode') {
         my $charset = $!ct<attributes><charset>;
         unless $charset {
             if $!ct<discrete> eq 'text' && ($!ct<component> eq 'plain'
