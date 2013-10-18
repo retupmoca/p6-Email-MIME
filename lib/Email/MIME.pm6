@@ -96,7 +96,7 @@ method body {
     if $cte && %cte-coders{$cte}.can('decode') {
         return %cte-coders{$cte}.decode($body);
     } else {
-        return $body;
+        return $body.encode('ascii');
     }
 }
 
@@ -109,7 +109,12 @@ method body-set($body) {
     if $cte && %cte-coders{$cte}.can('encode') {
         $body-encoded = %cte-coders{$cte}.encode($body);
     } else {
-        $body-encoded = $body;
+        if($body.isa('Str')){
+            # ensure everything is ascii like it should be
+            $body-encoded = $body.encode('ascii').decode('ascii');
+        }else{
+            $body-encoded = $body.decode('ascii');
+        }
     }
 
     $!body-raw = $body-encoded;
@@ -134,10 +139,15 @@ method body-str {
     }
     if $body.can('decode') {
         my $charset = $!ct<attributes><charset>;
+
+        if $charset eq 'us-ascii' {
+            $charset = 'ascii';
+        }
+
         unless $charset {
             if $!ct<discrete> eq 'text' && ($!ct<component> eq 'plain'
                                             || $!ct<component> eq 'html') {
-                return $body.decode('us-ascii');
+                return $body.decode('ascii');
             }
 
             # I have a Buf with no charset. Can't really do anything...
@@ -153,6 +163,10 @@ method body-str {
 
 method body-str-set(Str $body) {
     my $charset = $!ct<attributes><charset>;
+
+    if $charset eq 'us-ascii' {
+        $charset = 'ascii';
+    }
 
     unless $charset {
         # well, we can't really do anything with this
