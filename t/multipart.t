@@ -19,5 +19,5 @@ is +@outer-parts[0].parts, 1, 'middle part';
 my @middle-parts = @outer-parts[0].parts;
 ok +@middle-parts[0].parts > 1, 'inner part';
 
-ok @middle-parts[0].parts[0].body ~~ /HELLO/, 'found the hello';
+ok @middle-parts[0].parts[0].body-str ~~ /HELLO/, 'found the hello';
 

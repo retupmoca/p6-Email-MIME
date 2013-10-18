@@ -36,12 +36,12 @@ method parse-content-type (Str $content-type) {
     try {
         my $parsed = ContentTypeHeader.parse($content-type);
         
-        $result<discrete> = $parsed<discrete>;
-        $result<component> = $parsed<component>;
+        $result<discrete> = ~$parsed<discrete>;
+        $result<component> = ~$parsed<component>;
         
         my @entries = $parsed<params><param>.list;
         for @entries {
-            $result<attributes>{$_<name>} = $_<value>;
+            $result<attributes>{~$_<name>} = ~$_<value>;
         }
         
         CATCH {

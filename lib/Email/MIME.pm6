@@ -19,7 +19,7 @@ method _finish_new(){
 }
 
 method body-raw {
-    return $!body-raw // self.body;
+    return $!body-raw // self.body(True);
 }
 
 method parts {
@@ -54,7 +54,7 @@ method parts-single-part {
 method parts-multipart {
     my $boundary = $!ct<attributes><boundary>;
 
-    $!body-raw //= self.body;
+    $!body-raw //= self.body(True);
     my @bits = split(/\-\-$boundary/, self.body-raw);
     my $x = 0;
     for @bits {
@@ -87,8 +87,11 @@ method set-encoding-coder($cte, $coder) {
     %cte-coders{$cte} = $coder;
 }
 
-method body {
-    my $body = callsame;
+method body($callsame_only?) {
+    my $body = callwith();
+    if $callsame_only {
+        return $body;
+    }
     my $cte = ~self.header('Content-Transfer-Encoding') // '';
     $cte ~~ s/\;.*$//;
     $cte ~~ s:g/\s//;
@@ -109,10 +112,10 @@ method body-set($body) {
     if $cte && %cte-coders{$cte}.can('encode') {
         $body-encoded = %cte-coders{$cte}.encode($body);
     } else {
-        if($body.isa('Str')){
+        if $body.isa('Str') {
             # ensure everything is ascii like it should be
             $body-encoded = $body.encode('ascii').decode('ascii');
-        }else{
+        } else {
             $body-encoded = $body.decode('ascii');
         }
     }
@@ -140,7 +143,7 @@ method body-str {
     if $body.can('decode') {
         my $charset = $!ct<attributes><charset>;
 
-        if $charset eq 'us-ascii' {
+        if $charset ~~ m:i/^us\-ascii$/ {
             $charset = 'ascii';
         }
 
@@ -164,13 +167,13 @@ method body-str {
 method body-str-set(Str $body) {
     my $charset = $!ct<attributes><charset>;
 
-    if $charset eq 'us-ascii' {
-        $charset = 'ascii';
-    }
-
     unless $charset {
         # well, we can't really do anything with this
         # TODO: exception
+    }
+
+    if $charset ~~ m:i/^us\-ascii$/ {
+        $charset = 'ascii';
     }
 
     self.body-set($body.encode($charset));
