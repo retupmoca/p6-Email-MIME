@@ -127,13 +127,42 @@ method encoding-set($enc) {
 ###
 
 method body-str {
+    my $body = self.body;
+    if($body.isa('Str')){
+        # if body is a Str, we assume it's already been decoded
+        return $body;
+    }
+    if($body.isa('Buf')){
+        my $charset = $!ct<attributes><charset>;
+        unless $charset {
+            if $!ct<discrete> eq 'text' && ($!ct<component> eq 'plain'
+                                            || $!ct<component> eq 'html') {
+                return $body.decode('us-ascii');
+            }
 
+            # I have a Buf with no charset. Can't really do anything...
+            # TODO: exception
+        }
+
+        return $body.decode($charset);
+    }
+    # Not a Buf or a Str? We don't know how to handle it.
+    # Call .body and do it yourself!
+    # TODO: exception
 }
 
-method body-str-set($body) {
+method body-str-set(Str $body) {
+    my $charset = $!ct<attributes><charset>;
 
+    unless $charset {
+        # well, we can't really do anything with this
+        # TODO: exception
+    }
+
+    self.body-set($body.encode($charset));
 }
 
 method header-str-set($header, $value) {
-
+    # Stubbity stub stub stub
+    self.header-set($header, $value);
 }
