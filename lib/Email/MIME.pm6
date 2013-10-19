@@ -27,6 +27,9 @@ class X::Email::MIME::InvalidBody is Exception {
     method message { "Invalid body from encoding handler - I need a Str or something that I can .decode to a Str"; }
 }
 
+use Email::MIME::Encoder::Base64NYI;
+use Email::MIME::Encoder::QuotedPrintNYI;
+
 has $!ct;
 has @!parts;
 has $!body-raw;
@@ -283,7 +286,8 @@ method !reset-cids {
 # content transfer encoding stuff here
 ###
 
-my %cte-coders = ();
+my %cte-coders = ('base64' => Email::MIME::Encoder::Base64NYI,
+                  'quoted-printable' => Email::MIME::Encoder::QuotedPrintNYI);
 
 method set-encoding-handler($cte, $coder) {
     %cte-coders{$cte} = $coder;
