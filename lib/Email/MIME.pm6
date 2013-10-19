@@ -34,9 +34,6 @@ has $!ct;
 has @!parts;
 has $!body-raw;
 
-class X::Email::MIME::CharsetNeeded is Exception {
-
-}
 method new (Str $text){
     my $self = callsame;
     $self._finish_new();
