@@ -18,6 +18,10 @@ method _finish_new(){
     self.parts;
 }
 
+method create {
+    # TODO
+}
+
 method body-raw {
     return $!body-raw // self.body(True);
 }
@@ -30,6 +34,22 @@ method parts {
     } else {
         return self;
     }
+}
+
+method debug-structure {
+    # TODO
+}
+
+method filename {
+    # TODO
+}
+
+method invent-filename {
+    # TODO
+}
+
+method filename-set {
+    # TODO
 }
 
 method subparts {
@@ -73,12 +93,86 @@ method parts-multipart {
     return @!parts;
 }
 
+method parts-set(@parts) {
+    my $body = '';
+
+    if +@parts > 1 && $!ct<discrete> eq 'multipart' {
+        my $boundary = '';
+
+        for @parts -> $part {
+            $body ~= self.crlf ~ "--" ~ $boundary ~ self.crlf;
+            $body ~= ~$part;
+        }
+        $body ~= self.crlf ~ "--" ~ $boundary ~ "--" ~ self.crlf;
+        #ct
+    } elsif +@parts == 1 {
+        my $part = @parts[0];
+        if $part.isa('Str') {
+            $body = ~$part;
+        } else {
+            $body = $part.body;
+        }
+        #ct
+        self.encoding-set(...);
+        # remove boundary
+    }
+
+    self!compose-content-type(...);
+    self.body-set($body);
+    self.fill-parts;
+    self!reset-cids;
+}
+
+method parts-add {
+    # TODO
+}
+
+method walk-parts {
+    # TODO
+}
+
+method boundary-set {
+    # TODO
+}
+
 method content-type(){
   return ~self.header("Content-type");
 }
 
+method content-type-set {
+    # TODO
+}
+
+method charset-set {
+    # TODO
+}
+
+method name-set {
+    # TODO
+}
+
+method format-set {
+    # TODO
+}
+
+method disposition-set {
+    # TODO
+}
+
 method as-string {
     return self.header-obj.as-string ~ self.crlf ~ self.body-raw;
+}
+
+method !compose-content-type {
+    # TODO
+}
+
+method !get-cid {
+    # TODO: exception (Email::MessageID doesn't exist)
+}
+
+method !reset-cids {
+    # TODO
 }
 
 ###
