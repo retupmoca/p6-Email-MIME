@@ -39,19 +39,72 @@ class X::Email::MIME::CharsetNeeded is Exception {
 }
 method new (Str $text){
     my $self = callsame;
-    $self!finish_new();
+    $self._finish_new();
     return $self;
 }
-method !finish_new(){
+method _finish_new(){
     $!ct = self.parse-content-type(self.content-type);
     self.parts;
 }
 
 method create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str) {
-    my $self = callwith(Array.new(), '');
-    $self!finish_new();
+    my $self = callwith(header => Array.new(), body => '');
 
-    die X::Email::MIME::NYI.new('.create NYI');
+    $self.header-set('Content-Type', 'text/plain');
+    $self.header-set('MIME-Version', '1.0');
+
+    if $header {
+        for $header -> $item {
+            $self.header-set($item[0], $item[1]);
+        }
+    }
+    if $header-str {
+        for $header -> $item {
+            $self.header-str-set($item[0], $item[1]);
+        }
+    }
+
+    # TODO: this is messy
+    if $attributes<content-type> {
+        $self.content-type-set($attributes<content-type>);
+    }
+    if $attributes<charset> {
+        $self.charset-set($attributes<charset>);
+    }
+    if $attributes<name> {
+        $self.name-set($attributes<name>);
+    }
+    if $attributes<format> {
+        $self.format-set($attributes<format>);
+    }
+    if $attributes<boundary> {
+        $self.boundary-set($attributes<boundary>);
+    }
+    if $attributes<encoding> {
+        $self.encoding-set($attributes<encoding>);
+    }
+    if $attributes<disposition> {
+        $self.disposition-set($attributes<disposition>);
+    }
+    if $attributes<filename> {
+        $self.filename-set($attributes<filename>);
+    }
+    ##
+    
+    if $parts {
+        for $parts -> $part {
+            unless $part ~~ Email::MIME {
+                $part = Email::MIME.create(attributes => {content-type => 'text/plain'}, body => $part);
+            }
+            $self.parts-set($parts);
+        }
+    } elsif $body {
+        $self.body-set($body);
+    } elsif $body-str {
+        $self.body-str-set($body-str);
+    }
+
+    return $self;
 }
 
 method body-raw {
