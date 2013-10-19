@@ -36,8 +36,15 @@ method parts {
     }
 }
 
-method debug-structure {
-    # TODO
+method debug-structure($level = 0) {
+    my $rv = ' ' x (5 * $level);
+    $rv ~= '+ ' ~ self.content-type ~ "\n";
+    if +self.parts > 1 {
+        for self.parts -> $part {
+            $rv ~= $part.debug-structure($level + 1);
+        }
+    }
+    return $rv;
 }
 
 method filename {
@@ -96,75 +103,118 @@ method parts-multipart {
 method parts-set(@parts) {
     my $body = '';
 
+    my $ct = self.parse-content-type(self.content-type);
+
     if +@parts > 1 && $!ct<discrete> eq 'multipart' {
-        my $boundary = '';
+        $ct<attributes><boundary> //= Email::MessageID.new.user; # TODO: exception (class doesn't exist)
+        my $boundary = $ct<attributes><boundary>;
 
         for @parts -> $part {
             $body ~= self.crlf ~ "--" ~ $boundary ~ self.crlf;
             $body ~= ~$part;
         }
         $body ~= self.crlf ~ "--" ~ $boundary ~ "--" ~ self.crlf;
-        #ct
+        unless $ct<discrete> eq 'multipart' || $ct<discrete> eq 'message' {
+            $ct<discrete> = 'multipart';
+            $ct<component> = 'mixed';
+        }
     } elsif +@parts == 1 {
         my $part = @parts[0];
-        if $part.isa('Str') {
-            $body = ~$part;
-        } else {
-            $body = $part.body;
-        }
-        #ct
-        self.encoding-set(...);
-        # remove boundary
+        $body = $part.body;
+        my $thispart_ct = self.parse-content-type($part.content-type);
+        $ct<discrete> = $thispart_ct<discrete>;
+        $ct<component> = $thispart_ct<component>;
+        self.encoding-set($part.header('Content-Transfer-Encoding'));
+        $ct<attributes><boundary>.delete;
     }
 
-    self!compose-content-type(...);
+    self!compose-content-type($ct);
     self.body-set($body);
     self.fill-parts;
     self!reset-cids;
 }
 
-method parts-add {
+method parts-add(@parts) {
+    my @allparts = self.parts, @parts;
+    self.parts-set(@allparts);
+}
+
+method walk-parts($callback) {
     # TODO
 }
 
-method walk-parts {
-    # TODO
-}
-
-method boundary-set {
-    # TODO
+method boundary-set($data) {
+    my $ct-hash = self.parse-content-type(self.content-type);
+    if $data {
+        $ct-hash<attributes><boundary> = $data;
+    } else {
+        $ct-hash<attributes><boundary>.delete;
+    }
+    self!compose-content-type($ct-hash);
+    
+    if +self.parts > 1 {
+        self.parts-set(self.parts)
+    }
 }
 
 method content-type(){
   return ~self.header("Content-type");
 }
 
-method content-type-set {
-    # TODO
+method content-type-set($ct) {
+    my $ct-hash = self.parse-content-type($ct);
+    self!compose-content-type($ct-hash);
+    self!reset-cids;
+    return $ct;
 }
 
-method charset-set {
-    # TODO
+# TODO: make the next three methods into a macro call
+method charset-set($data) {
+    my $ct-hash = self.parse-content-type(self.content-type);
+    if $data {
+        $ct-hash<attributes><charset> = $data;
+    } else {
+        $ct-hash<attributes><charset>.delete;
+    }
+    self!compose-content-type($ct-hash);
+    return $data;
+}
+method name-set($data) {
+    my $ct-hash = self.parse-content-type(self.content-type);
+    if $data {
+        $ct-hash<attributes><name> = $data;
+    } else {
+        $ct-hash<attributes><name>.delete;
+    }
+    self!compose-content-type($ct-hash);
+    return $data;
+}
+method format-set($data) {
+    my $ct-hash = self.parse-content-type(self.content-type);
+    if $data {
+        $ct-hash<attributes><format> = $data;
+    } else {
+        $ct-hash<attributes><format>.delete;
+    }
+    self!compose-content-type($ct-hash);
+    return $data;
 }
 
-method name-set {
-    # TODO
-}
-
-method format-set {
-    # TODO
-}
-
-method disposition-set {
-    # TODO
+method disposition-set($data) {
+    self.header-set('Content-Disposition', $data);
 }
 
 method as-string {
     return self.header-obj.as-string ~ self.crlf ~ self.body-raw;
 }
 
-method !compose-content-type {
-    # TODO
+method !compose-content-type($ct-hash) {
+    my $ct = $ct-hash<discrete> ~ '/' ~ $ct-hash<component>;
+    for keys $ct-hash<attributes> -> $attr {
+        $ct ~= "; " ~ $attr ~ '="' ~ $ct-hash<attributes>{$attr} ~ '"';
+    }
+    self.header-set('Content-Type', $ct);
+    $!ct = $ct-hash;
 }
 
 method !get-cid {
