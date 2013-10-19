@@ -4,22 +4,51 @@ use Email::MIME::ParseContentType;
 
 class Email::MIME is Email::Simple does Email::MIME::ParseContentType;
 
+class X::Email::MIME::NYI is Exception {
+    has $.description;
+
+    method new($description is copy) {
+        if $description ~~ Failure {
+            $description = $description.exception.message;
+        }
+        self.bless(:$description);
+    }
+
+    method message {
+        sprintf "Not Yet Implemented! (%s)", $.description;
+    }
+}
+
+class X::Email::MIME::CharsetNeeded is Exception {
+    method message { "body-str and body-str-set require a charset!"; }
+}
+
+class X::Email::MIME::InvalidBody is Exception {
+    method message { "Invalid body from encoding handler - I need a Str or something that I can .decode to a Str"; }
+}
+
 has $!ct;
 has @!parts;
 has $!body-raw;
 
+class X::Email::MIME::CharsetNeeded is Exception {
+
+}
 method new (Str $text){
     my $self = callsame;
-    $self._finish_new();
+    $self!finish_new();
     return $self;
 }
-method _finish_new(){
+method !finish_new(){
     $!ct = self.parse-content-type(self.content-type);
     self.parts;
 }
 
-method create {
-    # TODO
+method create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str) {
+    my $self = callwith(Array.new(), '');
+    $self!finish_new();
+
+    die X::Email::MIME::NYI.new('.create NYI');
 }
 
 method body-raw {
@@ -48,15 +77,15 @@ method debug-structure($level = 0) {
 }
 
 method filename {
-    # TODO
+    die X::Email::MIME::NYI.new('.filename NYI');
 }
 
 method invent-filename {
-    # TODO
+    die X::Email::MIME::NYI.new('.invent-filename NYI');
 }
 
 method filename-set {
-    # TODO
+    die X::Email::MIME::NYI.new('.filename-set NYI');
 }
 
 method subparts {
@@ -106,7 +135,7 @@ method parts-set(@parts) {
     my $ct = self.parse-content-type(self.content-type);
 
     if +@parts > 1 && $!ct<type> eq 'multipart' {
-        $ct<attributes><boundary> //= Email::MessageID.new.user; # TODO: exception (class doesn't exist)
+        $ct<attributes><boundary> //= die X::Email::MIME::NYI.new('Need a port of Email::MessageID');
         my $boundary = $ct<attributes><boundary>;
 
         for @parts -> $part {
@@ -140,7 +169,7 @@ method parts-add(@parts) {
 }
 
 method walk-parts($callback) {
-    # TODO
+    die X::Email::MIME::NYI.new('.walk-parts NYI');
 }
 
 method boundary-set($data) {
@@ -218,7 +247,7 @@ method !compose-content-type($ct-hash) {
 }
 
 method !get-cid {
-    # TODO: exception (Email::MessageID doesn't exist)
+    die X::Email::MIME::NYI.new('Need a port of Email::MessageID');
 }
 
 method !reset-cids {
@@ -327,14 +356,12 @@ method body-str {
             }
 
             # I have a Buf with no charset. Can't really do anything...
-            # TODO: exception
+            die X::Email::MIME::CharsetNeeded.new();
         }
 
         return $body.decode($charset);
     }
-    # Not a Buf or a Str? We don't know how to handle it.
-    # Call .body and do it yourself!
-    # TODO: exception
+    die X::Email::MIME::InvalidBody.new();
 }
 
 method body-str-set(Str $body) {
@@ -342,7 +369,7 @@ method body-str-set(Str $body) {
 
     unless $charset {
         # well, we can't really do anything with this
-        # TODO: exception
+        die X::Email::MIME::CharsetNeeded.new();
     }
 
     if $charset ~~ m:i/^us\-ascii$/ {
