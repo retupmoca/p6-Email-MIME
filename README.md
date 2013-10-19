@@ -3,7 +3,7 @@ p6-Email-MIME
 
 This is a (very unfinished) port of perl 5's Email::MIME.
 
-TODO: base64 (see below) and quoted-printable (requires a port of MIME::QuotedPrint); non-ascii header values (reqiures a port of Encode::MIME::Header); .create; exceptions
+TODO: base64 (see below) and quoted-printable (requires a port of MIME::QuotedPrint); non-ascii header values (reqiures a port of Encode::MIME::Header); .create (requires a port of Email::MessageID); exceptions
 
 Note that you can define your own base64/quoted-printable handlers by calling Email::MIME.set-encoding-handler('base64', My::Base64::Handler); - your class must simply support .encode($stuff) and .decode($stuff) methods.
 
