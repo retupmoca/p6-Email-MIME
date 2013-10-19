@@ -65,7 +65,7 @@ method subparts {
 }
 
 method fill-parts {
-    if $!ct<discrete> eq "multipart" || $!ct<discrete> eq "message" {
+    if $!ct<type> eq "multipart" || $!ct<type> eq "message" {
         self.parts-multipart;
     } else {
         self.parts-single-part;
@@ -105,7 +105,7 @@ method parts-set(@parts) {
 
     my $ct = self.parse-content-type(self.content-type);
 
-    if +@parts > 1 && $!ct<discrete> eq 'multipart' {
+    if +@parts > 1 && $!ct<type> eq 'multipart' {
         $ct<attributes><boundary> //= Email::MessageID.new.user; # TODO: exception (class doesn't exist)
         my $boundary = $ct<attributes><boundary>;
 
@@ -114,16 +114,16 @@ method parts-set(@parts) {
             $body ~= ~$part;
         }
         $body ~= self.crlf ~ "--" ~ $boundary ~ "--" ~ self.crlf;
-        unless $ct<discrete> eq 'multipart' || $ct<discrete> eq 'message' {
-            $ct<discrete> = 'multipart';
-            $ct<component> = 'mixed';
+        unless $ct<type> eq 'multipart' || $ct<type> eq 'message' {
+            $ct<type> = 'multipart';
+            $ct<subtype> = 'mixed';
         }
     } elsif +@parts == 1 {
         my $part = @parts[0];
         $body = $part.body;
         my $thispart_ct = self.parse-content-type($part.content-type);
-        $ct<discrete> = $thispart_ct<discrete>;
-        $ct<component> = $thispart_ct<component>;
+        $ct<type> = $thispart_ct<type>;
+        $ct<subtype> = $thispart_ct<subtype>;
         self.encoding-set($part.header('Content-Transfer-Encoding'));
         $ct<attributes><boundary>.delete;
     }
@@ -209,7 +209,7 @@ method as-string {
 }
 
 method !compose-content-type($ct-hash) {
-    my $ct = $ct-hash<discrete> ~ '/' ~ $ct-hash<component>;
+    my $ct = $ct-hash<type> ~ '/' ~ $ct-hash<subtype>;
     for keys $ct-hash<attributes> -> $attr {
         $ct ~= "; " ~ $attr ~ '="' ~ $ct-hash<attributes>{$attr} ~ '"';
     }
@@ -222,7 +222,32 @@ method !get-cid {
 }
 
 method !reset-cids {
-    # TODO
+    my $ct-hash = self.parse-content-type(self.content-type);
+
+    if +self.parts > 1 {
+        if $ct-hash<subtype> eq 'alternative' {
+            my $cids;
+            for self.parts -> $part {
+                my $cid = $part.header('Content-ID') // '';
+                $cids{$cid}++;
+            }
+            if +$cids.keys == 1 {
+                return;
+            }
+
+            my $cid = self!get-gid;
+            for self.parts -> $part {
+                $part.header-set('Content-ID', $cid);
+            }
+        } else {
+            for self.parts -> $part {
+                my $cid = self!get-cid;
+                unless $part.header('Content-ID') {
+                    $part.header-set('Content-ID', $cid);
+                }
+            }
+        }
+    }
 }
 
 ###
@@ -296,8 +321,8 @@ method body-str {
         }
 
         unless $charset {
-            if $!ct<discrete> eq 'text' && ($!ct<component> eq 'plain'
-                                            || $!ct<component> eq 'html') {
+            if $!ct<type> eq 'text' && ($!ct<subtype> eq 'plain'
+                                        || $!ct<subtype> eq 'html') {
                 return $body.decode('ascii');
             }
 

@@ -2,12 +2,12 @@ role Email::MIME::ParseContentType;
 
 grammar ContentTypeHeader {
     token TOP {
-        ^ <discrete> \/ <component> \s* <params>? $
+        ^ <type> \/ <subtype> \s* <params>? $
     }
-    token discrete {
+    token type {
         \w+
     }
-    token component {
+    token subtype {
         \w+
     }
     token params {
@@ -36,8 +36,8 @@ method parse-content-type (Str $content-type) {
     try {
         my $parsed = ContentTypeHeader.parse($content-type);
         
-        $result<discrete> = ~$parsed<discrete>;
-        $result<component> = ~$parsed<component>;
+        $result<type> = ~$parsed<type>;
+        $result<subtype> = ~$parsed<subtype>;
         
         my @entries = $parsed<params><param>.list;
         for @entries {
