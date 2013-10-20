@@ -368,7 +368,7 @@ method body-set($body) {
     if $cte && %cte-coders{$cte}.can('encode') {
         $body-encoded = %cte-coders{$cte}.encode($body);
     } else {
-        if $body.isa('Str') {
+        if $body ~~ Str {
             # ensure everything is ascii like it should be
             $body-encoded = $body.encode('ascii').decode('ascii');
         } else {
@@ -392,11 +392,11 @@ method encoding-set($enc) {
 
 method body-str {
     my $body = self.body;
-    if $body.isa('Str') {
+    if $body ~~ Str {
         # if body is a Str, we assume it's already been decoded
         return $body;
     }
-    if $body.can('decode') {
+    if $body ~~ Blob {
         my $charset = $!ct<attributes><charset>;
 
         if $charset ~~ m:i/^us\-ascii$/ {
