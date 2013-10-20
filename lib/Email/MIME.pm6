@@ -24,7 +24,10 @@ class X::Email::MIME::CharsetNeeded is Exception {
 }
 
 class X::Email::MIME::InvalidBody is Exception {
-    method message { "Invalid body from encoding handler - I need a Str or something that I can .decode to a Str"; }
+    method message {
+        "Invalid body from encoding handler"
+        ~ "- I need a Str or something that I can .decode to a Str";
+    }
 }
 
 use Email::MIME::Encoder::Base64NYI;
@@ -91,7 +94,8 @@ method create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str)
     if $parts {
         for $parts -> $part {
             unless $part ~~ Email::MIME {
-                $part = Email::MIME.create(attributes => {content-type => 'text/plain'}, body => $part);
+                $part = Email::MIME.create(attributes => {content-type => 'text/plain'},
+                                           body => $part);
             }
             $self.parts-set($parts);
         }
@@ -188,7 +192,7 @@ method parts-set(@parts) {
     my $ct = self.parse-content-type(self.content-type);
 
     if +@parts > 1 && $!ct<type> eq 'multipart' {
-        $ct<attributes><boundary> //= die X::Email::MIME::NYI.new('Need a port of Email::MessageID');
+        $ct<attributes><boundary> //= self!create-boundary;
         my $boundary = $ct<attributes><boundary>;
 
         for @parts -> $part {
@@ -300,7 +304,7 @@ method !compose-content-type($ct-hash) {
 }
 
 method !get-cid {
-    die X::Email::MIME::NYI.new('Need a port of Email::MessageID');
+    return '<' ~ self!create-cid ~ '>';
 }
 
 method !reset-cids {
@@ -436,4 +440,20 @@ method body-str-set(Str $body) {
 method header-str-set($header, $value) {
     # Stubbity stub stub stub
     self.header-set($header, $value);
+}
+
+###
+# methods to replace Email::MessageID
+# TODO pull these into a new Email::MessageID module
+###
+
+my @chars = ('A'..'F','a'..'f',0..9);
+
+method !create-boundary {
+    return now.Num ~ '.' ~ (@chars.roll((4..8).pick)).join ~ '.' ~ $*PID;
+}
+
+method !create-cid {
+    #return self!create-boundary ~ '@' ~ gethost; # gethost NYI
+    return self!create-boundary ~ '@' ~ qx`/bin/hostname`;
 }
