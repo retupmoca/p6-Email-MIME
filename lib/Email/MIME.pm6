@@ -44,7 +44,7 @@ method new (Str $text){
 }
 method _finish_new(){
     $!ct = self.parse-content-type(self.content-type);
-    self.parts;
+    self.fill-parts;
 }
 
 method create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str) {
@@ -113,8 +113,6 @@ method body-raw {
 }
 
 method parts {
-    self.fill-parts unless @!parts;
-    
     if +@!parts {
         return @!parts;
     } else {
@@ -188,7 +186,6 @@ method filename-set($filename) {
 }
 
 method subparts {
-    self.fill-parts unless @!parts;
     return @!parts;
 }
 
@@ -268,7 +265,13 @@ method parts-add(@parts) {
 }
 
 method walk-parts($callback) {
-    die X::Email::MIME::NYI.new('.walk-parts NYI');
+    $callback(self);
+
+    for self.subparts {
+        $_.walk-parts($callback);
+    }
+
+    return self;
 }
 
 method boundary-set($data) {
