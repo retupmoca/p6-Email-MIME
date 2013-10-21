@@ -31,7 +31,7 @@ class X::Email::MIME::InvalidBody is Exception {
 }
 
 use Email::MIME::Encoder::Base64NYI;
-use Email::MIME::Encoder::QuotedPrintNYI;
+use MIME::QuotedPrint;
 
 has $!ct;
 has @!parts;
@@ -341,7 +341,7 @@ method !reset-cids {
 ###
 
 my %cte-coders = ('base64' => Email::MIME::Encoder::Base64NYI,
-                  'quoted-printable' => Email::MIME::Encoder::QuotedPrintNYI);
+                  'quoted-printable' => MIME::QuotedPrint);
 
 method set-encoding-handler($cte, $coder) {
     %cte-coders{$cte} = $coder;
