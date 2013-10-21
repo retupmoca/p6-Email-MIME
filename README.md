@@ -1,7 +1,7 @@
 p6-Email-MIME
 =============
 
-This is a (very unfinished) port of perl 5's Email::MIME.
+This is a port of perl 5's Email::MIME.
 
 TODO: base64 (see below); non-ascii header values (reqiures a port of Encode::MIME::Header); filename methods; walk-parts
 
