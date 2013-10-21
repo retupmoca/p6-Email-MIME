@@ -133,16 +133,58 @@ method debug-structure($level = 0) {
     return $rv;
 }
 
-method filename {
-    die X::Email::MIME::NYI.new('.filename NYI');
+method filename($force = False) {
+    my $dis = self.header('Content-Disposition') // '';
+    my $params = Hash.new;
+    if $dis ~~ s/^<-[;]>+\;// {
+        $params = self.parse-header-attributes(';' ~ $dis);
+    }
+    my $name = $params<filename> || $!ct<attributes><name>;
+    if $name || !$force {
+        return $name;
+    }
+    
+    my $invented = self.invent-filename($!ct<type> ~ '/' ~ $!ct<subtype>);
+    self.filename-set($invented);
+    return $invented;
 }
 
-method invent-filename {
-    die X::Email::MIME::NYI.new('.invent-filename NYI');
+my $gname = 0;
+method invent-filename($ct?) {
+    # TODO use content type to find a more correct extension
+    return 'attachment-' ~ $*PID ~ '-' ~ $gname++ ~ '.dat';
 }
 
-method filename-set {
-    die X::Email::MIME::NYI.new('.filename-set NYI');
+method filename-set($filename) {
+    # parse existing header
+    my $dis = self.header('Content-Disposition');
+    my $disposition;
+    my $params;
+    if $dis {
+        $disposition = ~($dis ~~ /^<-[;]>+/);
+        if $dis ~~ s/^<-[;]>+\;// {
+            $params = self.parse-header-attributes(';' ~ $dis);
+        } else {
+            $params = Hash.new;
+        }
+    } else {
+        $disposition = 'inline';
+        $params = Hash.new;
+    }
+
+    # update filename
+    if $filename {
+        $params<filename> = $filename;
+    } else {
+        $params<filename>.delete;
+    }
+
+    # rewrite header
+    $dis = $disposition;
+    for $params.keys {
+        $dis ~= '; ' ~ $_ ~ '="' ~ $params{$_} ~ '"';
+    }
+    self.header-set($dis);
 }
 
 method subparts {
@@ -287,7 +329,14 @@ method format-set($data) {
 }
 
 method disposition-set($data) {
-    self.header-set('Content-Disposition', $data);
+    $data //= 'inline';
+    my $current = self.header('Content-Disposition');
+    if $current {
+        $current ~~ s/^<-[;]>+/$data/;
+    } else {
+        $current = $data;
+    }
+    self.header-set('Content-Disposition', $current);
 }
 
 method as-string {

@@ -53,3 +53,15 @@ method parse-content-type (Str $content-type) {
     
     return $result;
 }
+
+method parse-header-attributes (Str $attributestring) {
+    my $parsed = ContentTypeHeader.parse($attributestring, rule => 'params');
+
+    my $params;
+
+    for $parsed<param>.list {
+        $params{~$_<name>} = ~$_<value>;
+    }
+
+    return $params;
+}
