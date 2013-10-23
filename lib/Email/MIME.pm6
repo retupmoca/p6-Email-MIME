@@ -1,6 +1,7 @@
 use Email::Simple;
 
 use Email::MIME::ParseContentType;
+use Email::MIME::Header;
 
 class Email::MIME is Email::Simple does Email::MIME::ParseContentType;
 
@@ -38,7 +39,7 @@ has @!parts;
 has $!body-raw;
 
 method new (Str $text){
-    my $self = callsame;
+    my $self = callwith($text, header-class => Email::MIME::Header);
     $self._finish_new();
     return $self;
 }
@@ -48,7 +49,7 @@ method _finish_new(){
 }
 
 method create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str) {
-    my $self = callwith(header => Array.new(), body => '');
+    my $self = callwith(header => Array.new(), body => '', header-class => Email::MIME::Header);
 
     $self.header-set('Content-Type', 'text/plain');
     $self.header-set('MIME-Version', '1.0');
@@ -397,6 +398,7 @@ my %cte-coders = ('base64' => Email::MIME::Encoder::Base64NYI,
 
 method set-encoding-handler($cte, $coder) {
     %cte-coders{$cte} = $coder;
+    Email::MIME::Header.set-encoding-handler($cte, $coder);
 }
 
 method body($callsame_only?) {
@@ -489,9 +491,16 @@ method body-str-set(Str $body) {
     self.body-set($body.encode($charset));
 }
 
-method header-str-set($header, $value) {
-    # Stubbity stub stub stub
-    self.header-set($header, $value);
+method header-str-pairs {
+    self.header-obj.header-str-pairs;
+}
+
+method header-str($header) {
+    self.header-obj.header-str($header);
+}
+
+method header-str-set($header, *@lines) {
+    self.header-obj.header-str-set($header, |@lines);
 }
 
 ###

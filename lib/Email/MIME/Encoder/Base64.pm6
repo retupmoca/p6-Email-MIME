@@ -3,14 +3,20 @@ class Email::MIME::Encoder::Base64;
 
 use MIME::Base64;
 
-method encode($stuff) {
+method encode($stuff, :$mime-header) {
     unless $stuff.isa('Str') {
         $stuff = $stuff.decode('ascii');
     }
-    return MIME::Base64.encode_base64($stuff);
+    if $mime-header {
+        my $str = MIME::Base64.encode_base64($stuff);
+        $str ~~ s/\n//g;
+        return $str;
+    } else {
+        return MIME::Base64.encode_base64($stuff);
+    }
 }
 
-method decode($stuff) {
+method decode($stuff, :$mime-header) {
     my $decoded = MIME::Base64.decode_base64($stuff);
     if $decoded.isa('Str') {
         $decoded = $decoded.encode('ascii');
