@@ -48,7 +48,7 @@ method _finish_new(){
     self.fill-parts;
 }
 
-method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$parts, :$body, :$body-str) {
+method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$parts is copy, :$body, :$body-str) {
     my $self = callwith(header => Array.new(), body => '', header-class => Email::MIME::Header);
 
     $self.header-set('Content-Type', 'text/plain');
@@ -112,13 +112,13 @@ method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$pa
     ##
     
     if $parts {
-        for $parts -> $part {
+        for $parts.list -> $part is rw {
             unless $part ~~ Email::MIME {
                 $part = Email::MIME.create(attributes => {content-type => 'text/plain'},
                                            body => $part);
             }
-            $self.parts-set($parts);
         }
+        $self.parts-set($parts.list);
     } elsif $body {
         $self.body-set($body);
     } elsif $body-str {
@@ -130,6 +130,11 @@ method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$pa
 
 method body-raw {
     return $!body-raw // self.body(True);
+}
+
+method body-raw-set($body) {
+    $!body-raw = $body;
+    self.body-set($body, True);
 }
 
 method parts {
@@ -238,7 +243,7 @@ method parts-multipart {
             }
         } else {
             $x++;
-            self.body-set($_);
+            self.body-set($_, True);
         }
     }
 
@@ -250,7 +255,7 @@ method parts-set(@parts) {
 
     my $ct = self.parse-content-type(self.content-type);
 
-    if +@parts > 1 && $!ct<type> eq 'multipart' {
+    if +@parts > 1 || $!ct<type> eq 'multipart' {
         $ct<attributes><boundary> //= self!create-boundary;
         my $boundary = $ct<attributes><boundary>;
 
@@ -274,7 +279,7 @@ method parts-set(@parts) {
     }
 
     self!compose-content-type($ct);
-    self.body-set($body);
+    self.body-raw-set($body);
     self.fill-parts;
     self!reset-cids;
 }
@@ -436,7 +441,10 @@ method body($callsame_only?) {
     }
 }
 
-method body-set($body) {
+method body-set($body, $super?) {
+    if $super {
+        nextwith($body);
+    }
     my $cte = ~self.header('Content-Transfer-Encoding') // '';
     $cte ~~ s/\;.*$//;
     $cte ~~ s:g/\s//;
@@ -535,5 +543,7 @@ method !create-boundary {
 
 method !create-cid {
     #return self!create-boundary ~ '@' ~ gethost; # gethost NYI
-    return self!create-boundary ~ '@' ~ qx`/bin/hostname`;
+    my $hostname = qx`/bin/hostname`;
+    $hostname ~~ s/\n//;
+    return self!create-boundary ~ '@' ~ $hostname;
 }

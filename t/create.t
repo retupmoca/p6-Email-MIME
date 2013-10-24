@@ -3,7 +3,7 @@ use Test;
 
 use lib 'lib';
 
-plan 5;
+plan 6;
 
 use Email::MIME;
 
@@ -20,3 +20,6 @@ is $eml.header-str('subject'), 'This is a»test.', 'Got subject back correctly.'
 ok $eml.header('subject') ne $eml.header-str('subject'), 'raw subject is different';
 is $eml.body-str, 'Hello«World', 'Got body-str back correctly.';
 ok $eml.body-raw ne $eml.body-str, 'raw body is different';
+
+$eml = Email::MIME.create(parts => [ 'asdf', 'jkl' ]);
+ok $eml ~~ Email::MIME, 'Can create simple multi-part';
