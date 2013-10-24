@@ -48,47 +48,66 @@ method _finish_new(){
     self.fill-parts;
 }
 
-method create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str) {
+method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$parts, :$body, :$body-str) {
     my $self = callwith(header => Array.new(), body => '', header-class => Email::MIME::Header);
 
     $self.header-set('Content-Type', 'text/plain');
     $self.header-set('MIME-Version', '1.0');
 
     if $header {
-        for $header -> $item {
-            $self.header-set($item[0], $item[1]);
+        for $header.list -> $item {
+            if $item ~~ Pair {
+                $self.header-set($item.key, $item.value);
+            } else {
+                $self.header-set($item[0], $item[1]);
+            }
         }
     }
     if $header-str {
-        for $header -> $item {
-            $self.header-str-set($item[0], $item[1]);
+        for $header-str.list -> $item {
+            if $item ~~ Pair {
+                $self.header-str-set($item.key, $item.value);
+            } else {
+                $self.header-str-set($item[0], $item[1]);
+            }
         }
     }
 
     # TODO: this is messy
-    if $attributes<content-type> {
-        $self.content-type-set($attributes<content-type>);
-    }
-    if $attributes<charset> {
-        $self.charset-set($attributes<charset>);
-    }
-    if $attributes<name> {
-        $self.name-set($attributes<name>);
-    }
-    if $attributes<format> {
-        $self.format-set($attributes<format>);
-    }
-    if $attributes<boundary> {
-        $self.boundary-set($attributes<boundary>);
-    }
-    if $attributes<encoding> {
-        $self.encoding-set($attributes<encoding>);
-    }
-    if $attributes<disposition> {
-        $self.disposition-set($attributes<disposition>);
-    }
-    if $attributes<filename> {
-        $self.filename-set($attributes<filename>);
+    for $attributes.list -> $item {
+        my $key;
+        my $value;
+        if $item ~~ Pair {
+            $key = $item.key;
+            $value = $item.value;
+        } else {
+            $key = $item[0];
+            $value = $item[1];
+        }
+        if lc($key) eq 'content-type' {
+            $self.content-type-set($value);
+        }
+        if lc($key) eq 'charset' {
+            $self.charset-set($value);
+        }
+        if lc($key) eq 'name' {
+            $self.name-set($value);
+        }
+        if lc($key) eq 'format' {
+            $self.format-set($value);
+        }
+        if lc($key) eq 'boundary' {
+            $self.boundary-set($value);
+        }
+        if lc($key) eq 'encoding' {
+            $self.encoding-set($value);
+        }
+        if lc($key) eq 'disposition' {
+            $self.disposition-set($value);
+        }
+        if lc($key) eq 'filename' {
+            $self.filename-set($value);
+        }
     }
     ##
     
@@ -363,7 +382,7 @@ method !get-cid {
 method !reset-cids {
     my $ct-hash = self.parse-content-type(self.content-type);
 
-    if +self.parts > 1 {
+    if self.parts ~~ Array && +self.parts > 1 {
         if $ct-hash<subtype> eq 'alternative' {
             my $cids;
             for self.parts -> $part {

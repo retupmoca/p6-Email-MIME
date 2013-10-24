@@ -30,12 +30,12 @@ method set-encoding-handler($encoding, $handler){
 
 method header-str($header) {
     my $values = self.header($header);
-    for $values -> $value {
+    for $values.list -> $value is rw {
         while my $stuff = EncodedHeader.parse($value) {
             my $newstuff;
-            my $charset = $stuff<charset>;
-            my $encoding = $stuff<encoding>;
-            my $text = $stuff<text>;
+            my $charset = ~$stuff<charset>;
+            my $encoding = ~$stuff<encoding>;
+            my $text = ~$stuff<text>;
 
             # TODO make this more flexible
             if $encoding.uc eq 'Q' {
@@ -44,7 +44,7 @@ method header-str($header) {
                 $newstuff = %cte-coders<base64>.decode($text, :mime-header).decode($charset);
             }
 
-            my $oldstuff = ~$stuff<TOP>;
+            my $oldstuff = ~$stuff;
             $value ~~ s/$oldstuff/$newstuff/;
         }
     }
@@ -52,8 +52,8 @@ method header-str($header) {
     return $values;
 }
 
-method header-str-set($header, *@lines) {
-    for @lines -> $value {
+method header-str-set($header, *@lines is copy) {
+    for @lines -> $value is rw {
         my $encode = False;
         my $blob = $value.encode('utf8');
         for $blob.list {
@@ -64,7 +64,7 @@ method header-str-set($header, *@lines) {
 
         if $encode {
             # TODO use base64 instead?
-            my $encoded = %cte-coders<quoted-printable>.encode($blob, :mime-header).encode('ascii');
+            my $encoded = %cte-coders<quoted-printable>.encode($blob, :mime-header);
             $value = '=?UTF-8?Q?' ~ $encoded ~ '?=';
         }
     }

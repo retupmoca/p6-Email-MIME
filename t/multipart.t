@@ -3,7 +3,7 @@ use Test;
 
 use lib 'lib';
 
-plan 5;
+plan 7;
 
 use Email::MIME;
 
@@ -21,3 +21,8 @@ ok +@middle-parts[0].parts > 1, 'inner part';
 
 ok @middle-parts[0].parts[0].body-str ~~ /HELLO/, 'found the hello';
 
+$eml.walk-parts({
+        if $_.body-str ~~ /HELLO/ {
+            ok True, 'Found a HELLO in walk-parts (should be 2 of these)';
+        }
+    });
