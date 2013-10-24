@@ -9,7 +9,7 @@ method encode($stuff, :$mime-header) {
     }
     if $mime-header {
         my $str = MIME::Base64.encode_base64($stuff);
-        $str ~~ s/\n//g;
+        $str ~~ s:g/\n//;
         return $str;
     } else {
         return MIME::Base64.encode_base64($stuff);
