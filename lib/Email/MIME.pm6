@@ -148,7 +148,7 @@ method parts {
 method debug-structure($level = 0) {
     my $rv = ' ' x (5 * $level);
     $rv ~= '+ ' ~ self.content-type ~ "\n";
-    if +self.parts > 1 {
+    if self.parts ~~ Array && +self.parts > 1 {
         for self.parts -> $part {
             $rv ~= $part.debug-structure($level + 1);
         }
