@@ -542,8 +542,5 @@ method !create-boundary {
 }
 
 method !create-cid {
-    #return self!create-boundary ~ '@' ~ gethost; # gethost NYI
-    my $hostname = qx`/bin/hostname`;
-    $hostname ~~ s/\n//;
-    return self!create-boundary ~ '@' ~ $hostname;
+    return self!create-boundary ~ '@' ~ gethostname;
 }

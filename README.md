@@ -3,8 +3,6 @@ p6-Email-MIME
 
 This is a port of perl 5's Email::MIME.
 
-This module currently requires your system to have a working '/bin/hostname' (to generate Content-ID headers). This will go away once gethost() is implemented by rakudo.
-
 TODO: base64 (see below)
 
 Note that you can define your own base64/quoted-printable handlers by calling Email::MIME.set-encoding-handler('base64', My::Base64::Handler); - your class must simply support .encode($stuff) and .decode($stuff) methods.
