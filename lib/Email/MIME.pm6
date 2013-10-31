@@ -2,37 +2,12 @@ use Email::Simple;
 
 use Email::MIME::ParseContentType;
 use Email::MIME::Header;
+use Email::MIME::Exceptions;
+
+use MIME::QuotedPrint;
+use Email::MIME::Encoder::Base64;
 
 class Email::MIME is Email::Simple does Email::MIME::ParseContentType;
-
-class X::Email::MIME::NYI is Exception {
-    has $.description;
-
-    method new($description is copy) {
-        if $description ~~ Failure {
-            $description = $description.exception.message;
-        }
-        self.bless(:$description);
-    }
-
-    method message {
-        sprintf "Not Yet Implemented! (%s)", $.description;
-    }
-}
-
-class X::Email::MIME::CharsetNeeded is Exception {
-    method message { "body-str and body-str-set require a charset!"; }
-}
-
-class X::Email::MIME::InvalidBody is Exception {
-    method message {
-        "Invalid body from encoding handler"
-        ~ "- I need a Str or something that I can .decode to a Str";
-    }
-}
-
-use Email::MIME::Encoder::Base64NYI;
-use MIME::QuotedPrint;
 
 has $!ct;
 has @!parts;
@@ -417,7 +392,7 @@ method !reset-cids {
 # content transfer encoding stuff here
 ###
 
-my %cte-coders = ('base64' => Email::MIME::Encoder::Base64NYI,
+my %cte-coders = ('base64' => Email::MIME::Encoder::Base64,
                   'quoted-printable' => MIME::QuotedPrint);
 
 method set-encoding-handler($cte, $coder) {

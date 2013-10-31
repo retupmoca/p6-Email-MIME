@@ -1,7 +1,7 @@
 use v6;
 
 use Email::Simple::Header;
-use Email::MIME::Encoder::Base64NYI;
+use Email::MIME::Encoder::Base64;
 use MIME::QuotedPrint;
 
 class Email::MIME::Header is Email::Simple::Header;
@@ -21,7 +21,7 @@ grammar EncodedHeader {
     }
 }
 
-my %cte-coders = ('base64' => Email::MIME::Encoder::Base64NYI,
+my %cte-coders = ('base64' => Email::MIME::Encoder::Base64,
                   'quoted-printable' => MIME::QuotedPrint);
 
 method set-encoding-handler($encoding, $handler){
