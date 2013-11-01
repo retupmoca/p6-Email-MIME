@@ -2,6 +2,6 @@
     "name"	  : "Email::MIME",
     "version"	  : "*",
     "description" : "Simple MIME email parsing module",
-    "depends"	  : ["Email::Simple", "MIME::QuotedPrint"],
+    "depends"	  : ["Email::Simple", "MIME::QuotedPrint", "MIME::Base64"],
     "source-url"  : "git://github.com/retupmoca/p6-Email-MIME.git"
 }
