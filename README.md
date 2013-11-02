@@ -1,5 +1,5 @@
-p6-Email-MIME
-=============
+Email::MIME
+===========
 
 This is a port of perl 5's Email::MIME.
 
@@ -24,27 +24,11 @@ This is a port of perl 5's Email::MIME.
 
  -  `create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str)`
 
- -  `body-raw()`
-
- -  `body-raw-set($body)`
-
- -  `parts()`
-
- -  `debug-structure()`
-
  -  `filename($force = False)`
 
  -  `invent-filename($ct?)`
 
  -  `filename-set($filename)`
-
- -  `subparts()`
-
- -  `parts-set(@parts)`
-
- -  `parts-add(@parts)`
-
- -  `walk-parts($callback)`
 
  -  `boundary-set($string)`
 
@@ -62,15 +46,82 @@ This is a port of perl 5's Email::MIME.
 
  -  `encoding-set($enc)`
 
- -  `body-str()`
+ -  `parts()`
 
- -  `body-str-set()`
+    Returns the subparts of the current message. If there are no subparts, will
+    return the current message.
+
+ -  `subparts()`
+
+    Returns the subparts of the current message. If there are no subparts, will
+    return an empty list.
+
+ -  `walk-parts($callback)`
+
+    Visits each MIME part once, calling `$callback($part)` on each.
+
+ -  `debug-structure()`
+
+    Prints out the part structure of the email.
+
+ -  `parts-set(@parts)`
+
+    Sets the passed `Email::MIME` objects as the parts of the email.
+
+ -  `parts-add(@parts)`
+
+    Adds the passed `Email::MIME` objects to the list of parts in the email.
+
+ -  `body-str( --> Str)`
+
+    Returns the mail body, decoded according to the charset and transfer encoding
+    headers.
+
+ -  `body-str-set(Str $body)`
+
+    Sets the mail body to $body, encoding it using the charset and transfer
+    encoding configured.
+
+ -  `body( --> Buf)`
+
+    Returns the mail body as a binary blob, after decoding it from the
+    transfer encoding.
+
+ -  `body-set(Blob $data)`
+
+    Sets the mail body to `$data`. Will encode $data using the configured
+    transfer encoding.
+
+ -  `body-raw()`
+
+    Returns the raw body of the email (What will appear when .Str is called)
+
+ -  `body-raw-set($body)`
+
+    Sets the raw body of the email (What will appear when .Str is called)
 
  -  `header-str-pairs()`
 
+    Returns the full header data for an email.
+
  -  `header-str($name)`
 
+    Returns a list of email headers with the name `$name`. If used in string context,
+    will act like the first value of the list. (So you can call
+    `say $eml.header('Subject')` and it will work correctly).
+
  -  `header-str-set($name, *@lines)`
+
+    Sets the header `$name`. Adds one `$name` header for each additional argument
+    passed.
+
+ -  `header-names()`
+
+    Returns a list of header names in the email.
+
+ -  `headers()`
+
+    Alias of `header-names()`
 
  -  `header($name)`
 
@@ -85,30 +136,12 @@ This is a port of perl 5's Email::MIME.
     passed. This will not encode any headers, even if they have non-ascii
     characters.
 
- -  `header-names()`
-
-    Returns a list of header names in the email.
-
- -  `headers()`
-
-    Alias of `header-names()`
-
  -  `header-pairs()`
 
     Returns the full header data for an email. Note that this will not decode any
     encoded headers.
 
         $eml.header-pairs(); # --> [['Subject', 'test'], ['From', 'me@example.com']]
-
- -  `body( --> Buf)`
-
-    Returns the mail body as a binary blob, after decoding it from the
-    transfer encoding.
-
- -  `body-set(Blob $data)`
-
-    Sets the mail body to `$data`. Will encode $data using the configured
-    transfer encoding.
 
  -  `as-string()`, `Str()`
 
