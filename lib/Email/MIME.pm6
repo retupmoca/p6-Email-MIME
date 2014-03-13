@@ -373,7 +373,7 @@ method !reset-cids {
                 return;
             }
 
-            my $cid = self!get-gid;
+            my $cid = self!get-cid;
             for self.parts -> $part {
                 $part.header-set('Content-ID', $cid);
             }
