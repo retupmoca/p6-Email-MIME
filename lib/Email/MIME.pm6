@@ -405,7 +405,7 @@ method body($callsame_only?) {
     if $callsame_only {
         return $body;
     }
-    my $cte = ~self.header('Content-Transfer-Encoding') // '';
+    my $cte = ~(self.header('Content-Transfer-Encoding') // '');
     $cte ~~ s/\;.*$//;
     $cte ~~ s:g/\s//;
 
