@@ -294,7 +294,7 @@ method content-type(){
 
 method content-type-set($ct) {
     my $ct-hash = self.parse-content-type($ct);
-    $ct-hash<attributes> = $!ct<attributes> if $!ct && ($!ct<attributes>:exists);
+    $ct-hash<attributes> = $!ct<attributes> if $!ct && $!ct<attributes> && !$ct-hash<attributes>;
     self!compose-content-type($ct-hash);
     self!reset-cids;
     return $ct;
