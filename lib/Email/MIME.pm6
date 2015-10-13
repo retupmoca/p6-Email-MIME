@@ -49,39 +49,41 @@ method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$pa
     }
 
     # TODO: this is messy
-    for $attributes.list -> $item {
-        my $key;
-        my $value;
-        if $item ~~ Pair {
-            $key = $item.key;
-            $value = $item.value;
-        } else {
-            $key = $item[0];
-            $value = $item[1];
-        }
-        if lc($key) eq 'content-type' {
-            $self.content-type-set($value);
-        }
-        if lc($key) eq 'charset' {
-            $self.charset-set($value);
-        }
-        if lc($key) eq 'name' {
-            $self.name-set($value);
-        }
-        if lc($key) eq 'format' {
-            $self.format-set($value);
-        }
-        if lc($key) eq 'boundary' {
-            $self.boundary-set($value);
-        }
-        if lc($key) eq 'encoding' {
-            $self.encoding-set($value);
-        }
-        if lc($key) eq 'disposition' {
-            $self.disposition-set($value);
-        }
-        if lc($key) eq 'filename' {
-            $self.filename-set($value);
+    if $attributes {
+        for $attributes.list -> $item {
+            my $key;
+            my $value;
+            if $item ~~ Pair {
+                $key = $item.key;
+                $value = $item.value;
+            } else {
+                $key = $item[0];
+                $value = $item[1];
+            }
+            if lc($key) eq 'content-type' {
+                $self.content-type-set($value);
+            }
+            if lc($key) eq 'charset' {
+                $self.charset-set($value);
+            }
+            if lc($key) eq 'name' {
+                $self.name-set($value);
+            }
+            if lc($key) eq 'format' {
+                $self.format-set($value);
+            }
+            if lc($key) eq 'boundary' {
+                $self.boundary-set($value);
+            }
+            if lc($key) eq 'encoding' {
+                $self.encoding-set($value);
+            }
+            if lc($key) eq 'disposition' {
+                $self.disposition-set($value);
+            }
+            if lc($key) eq 'filename' {
+                $self.filename-set($value);
+            }
         }
     }
     ##
@@ -511,7 +513,7 @@ method header-str-set($header, *@lines) {
 # TODO pull these into a new Email::MessageID module
 ###
 
-my @chars = ('A'..'F','a'..'f',0..9);
+my @chars = ('A'..'F','a'..'f',0..9).flat;
 
 method !create-boundary {
     return now.Num ~ '.' ~ (@chars.roll((4..8).pick)).join ~ '.' ~ $*PID;
