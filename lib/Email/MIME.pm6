@@ -500,8 +500,8 @@ method header-str-pairs {
     self.header-obj.header-str-pairs;
 }
 
-method header-str($header) {
-    self.header-obj.header-str($header);
+method header-str($header, :$multi) {
+    self.header-obj.header-str($header, :$multi);
 }
 
 method header-str-set($header, *@lines) {
