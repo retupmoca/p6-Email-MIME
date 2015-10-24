@@ -110,6 +110,7 @@ This is a port of perl 5's Email::MIME.
     this will return the first header found. If `:$multi` is set, then this will
     return a list of all headers with the name `$name` (note the change from v1.0!)
 
+
  -  `header-str-set($name, *@lines)`
 
     Sets the header `$name`. Adds one `$name` header for each additional argument
