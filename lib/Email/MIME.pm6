@@ -520,5 +520,5 @@ method !create-boundary {
 }
 
 method !create-cid {
-    return self!create-boundary ~ '@' ~ gethostname;
+    return self!create-boundary ~ '@' ~ $*KERNEL.hostname;
 }
