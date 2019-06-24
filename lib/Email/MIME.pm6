@@ -284,14 +284,15 @@ method boundary-set($data) {
         $ct-hash<attributes><boundary>:delete;
     }
     self!compose-content-type($ct-hash);
-    
+
     if +self.parts > 1 {
         self.parts-set(self.parts)
     }
 }
 
 method content-type(){
-  return ~self.header("Content-type");
+    return ~$_ with self.header("Content-type");
+    return '';
 }
 
 method content-type-set($ct) {
