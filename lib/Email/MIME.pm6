@@ -291,7 +291,8 @@ method boundary-set($data) {
 }
 
 method content-type(){
-  return ~self.header("Content-type");
+  return ~$_ with self.header("Content-type");
+  return '';
 }
 
 method content-type-set($ct) {
