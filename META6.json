@@ -1,17 +1,36 @@
 {
-    "perl"    : "6.*",
-    "name"	  : "Email::MIME",
-    "license" : "CC0-1.0",
-    "version"	  : "2.0.0",
-    "author"      : "github:retupmoca",
-    "description" : "Simple MIME email parsing module",
-    "depends"	  : ["Email::Simple", "MIME::QuotedPrint", "MIME::Base64"],
-    "provides"    : {
-        "Email::MIME"                   : "lib/Email/MIME.pm6",
-        "Email::MIME::Exceptions"       : "lib/Email/MIME/Exceptions.pm6",
-        "Email::MIME::Header"           : "lib/Email/MIME/Header.pm6",
-        "Email::MIME::ParseContentType" : "lib/Email/MIME/ParseContentType.pm6",
-        "Email::MIME::Encoder::Base64"  : "lib/Email/MIME/Encoder/Base64.pm6"
-    },
-    "source-url"  : "git://github.com/retupmoca/p6-Email-MIME.git"
+  "resources": [
+  ],
+  "support": {
+    "source": null
+  },
+  "perl": "6.*",
+  "authors": [
+    "github:retupmoca"
+  ],
+  "source-url": "git://github.com/retupmoca/p6-Email-MIME.git",
+  "version": "2.0.1",
+  "description": "Simple MIME email parsing module",
+  "build-depends": [
+  ],
+  "auth": null,
+  "test-depends": [
+  ],
+  "meta-version": "0",
+  "license": "CC0-1.0",
+  "provides": {
+    "Email::MIME": "lib/Email/MIME.pm6",
+    "Email::MIME::ParseContentType": "lib/Email/MIME/ParseContentType.pm6",
+    "Email::MIME::Header": "lib/Email/MIME/Header.pm6",
+    "Email::MIME::Encoder::Base64": "lib/Email/MIME/Encoder/Base64.pm6",
+    "Email::MIME::Exceptions": "lib/Email/MIME/Exceptions.pm6"
+  },
+  "name": "Email::MIME",
+  "tags": [
+  ],
+  "depends": [
+    "Email::Simple",
+    "MIME::QuotedPrint",
+    "MIME::Base64"
+  ]
 }
