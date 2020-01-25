@@ -13,7 +13,7 @@
   "description": "Simple MIME email parsing module",
   "build-depends": [
   ],
-  "auth": null,
+  "auth": "github:retupmoca",
   "test-depends": [
   ],
   "meta-version": "0",
