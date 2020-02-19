@@ -1,0 +1,14 @@
+From: example@example.com
+To: =?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>
+Subject: =?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+        =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=
+Tricky-Line: FDKL =? text here ?=
+Date: Fri, 4 Aug 2006 18:52:34 -0400
+X-Gmail-Labels: =?UTF-8?Q?Arkiverat,Viktigt,=C3=96ppnat,Kategorin_Pe?=
+        =?UTF-8?Q?rsonligt,jubbered/textred,BG,jubbered?=
+X-Single: =?UTF-8?Q?Arkiverat,Viktigt,=C3=96ppnat,Kategorin_Pe?=
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+This is some testing text.
