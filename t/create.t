@@ -3,7 +3,7 @@ use Test;
 
 use lib 'lib';
 
-plan 6;
+plan 8;
 
 use Email::MIME;
 
@@ -21,5 +21,8 @@ ok $eml.header('subject') ne $eml.header-str('subject'), 'raw subject is differe
 is $eml.body-str, 'Hello«World', 'Got body-str back correctly.';
 ok $eml.body-raw ne $eml.body-str, 'raw body is different';
 
-$eml = Email::MIME.create(parts => [ 'asdf', 'jkl' ]);
+ok $eml.filename-set('File name.jpg'), 'Set the filename';
+is $eml.header('Content-Disposition'), 'inline; filename="File name.jpg"', 'Disposition is set';
+
+$eml = Email::MIME.create(parts => ['asdf', 'jkl']);
 ok $eml ~~ Email::MIME, 'Can create simple multi-part';
