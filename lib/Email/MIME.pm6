@@ -184,7 +184,7 @@ method filename-set($filename) {
     for $params.keys {
         $dis ~= '; ' ~ $_ ~ '="' ~ $params{$_} ~ '"';
     }
-    self.header-set($dis);
+    self.header-set('Content-Disposition', $dis);
 }
 
 method subparts {
