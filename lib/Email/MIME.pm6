@@ -6,6 +6,7 @@ use Email::MIME::Exceptions;
 
 use MIME::QuotedPrint;
 use Email::MIME::Encoder::Base64;
+use Email::MIME::Encoder::Base64Native;
 
 unit class Email::MIME is Email::Simple does Email::MIME::ParseContentType;
 
@@ -396,8 +397,13 @@ method !reset-cids {
 # content transfer encoding stuff here
 ###
 
-my %cte-coders = ('base64' => Email::MIME::Encoder::Base64,
-                  'quoted-printable' => MIME::QuotedPrint);
+my %cte-coders = ('quoted-printable' => MIME::QuotedPrint);
+if (try require Base64::Native) !=== Nil {
+    %cte-coders<base64> = Email::MIME::Encoder::Base64Native.new;
+}
+else {
+    %cte-coders<base64> = Email::MIME::Encoder::Base64.new;
+}
 
 method set-encoding-handler($cte, $coder) {
     %cte-coders{$cte} = $coder;
