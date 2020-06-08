@@ -18,6 +18,11 @@ This is a port of perl 5's Email::MIME.
                                  body-str => 'Hello«World');
     say ~$new;
 
+## Faster Base64 Encoding ##
+
+To benefit from faster Base64 encoding and decoding install the `Base64::Native` module
+which will be auto-detected and used automatically.
+
 ## Methods ##
 
  -  `new(Str $text)`
