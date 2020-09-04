@@ -105,7 +105,7 @@ method header-str-set($header, *@lines is copy) {
 
 method header-str-pairs {
     return gather {
-        for self.headers -> $name {
+        for self.header-names -> $name {
             take [ $name, self.header-str($name) ];
         }
     };
