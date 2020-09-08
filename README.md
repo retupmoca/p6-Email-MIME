@@ -22,6 +22,12 @@ This is a port of perl 5's Email::MIME.
 
  -  `new(Str $text)`
 
+    To work around the current limitation of new() requiring a well formed unicode Str, you will
+    need to set the correct decoding on Slurp.
+    ```
+    my $msg = Email::MIME.new($file.IO.slurp: enc => 'utf8-c8');
+    ```
+
  -  `create(:$header, :$header-str, :$attributes, :$parts, :$body, :$body-str)`
 
  -  `filename($force = False)`
