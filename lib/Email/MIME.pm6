@@ -24,7 +24,7 @@ method _finish_new(){
     self.fill-parts;
 }
 
-method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$parts is copy, :$body, :$body-str) {
+method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$parts is copy, :$body, :$body-str, :$body-raw) {
     my $self = callwith(header => Array.new(), body => '', header-class => Email::MIME::Header);
 
     $self.header-set('Content-Type', 'text/plain');
@@ -101,6 +101,8 @@ method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$pa
         $self.body-set($body);
     } elsif $body-str {
         $self.body-str-set($body-str);
+    } elsif $body-raw {
+        $self.body-raw-set($body-raw);
     }
 
     return $self;
