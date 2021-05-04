@@ -1,6 +1,6 @@
 use Email::Simple;
 
-use Email::MIME::ParseContentType;
+use Email::MIME::AttributeHeaderParsing;
 use Email::MIME::Header;
 use Email::MIME::Exceptions;
 
@@ -8,7 +8,7 @@ use MIME::QuotedPrint;
 use Email::MIME::Encoder::Base64;
 use Email::MIME::Encoder::Base64Native;
 
-unit class Email::MIME is Email::Simple does Email::MIME::ParseContentType;
+unit class Email::MIME is Email::Simple;
 
 has $!ct;
 has @!parts;
@@ -20,7 +20,7 @@ method new (Str $text){
     return $self;
 }
 method _finish_new(){
-    $!ct = self.parse-content-type(self.content-type);
+    $!ct = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
     self.fill-parts;
 }
 
@@ -138,11 +138,8 @@ method debug-structure($level = 0) {
 
 method filename($force = False) {
     my $dis = self.header('Content-Disposition') // '';
-    my $params = Hash.new;
-    if $dis ~~ s/^<-[;]>+\;// {
-        $params = self.parse-header-attributes(';' ~ $dis);
-    }
-    my $name = $params<filename> || $!ct<attributes><name>;
+    my $dis-parsed = Email::MIME::AttributeHeaderParsing::parse-content-disposition($dis);
+    my $name = $dis-parsed<attributes><filename> || $!ct<attributes><name>;
     if $name || !$force {
         return $name;
     }
@@ -162,31 +159,25 @@ method filename-set($filename) {
     # parse existing header
     my $dis = self.header('Content-Disposition');
     my $disposition;
-    my $params;
+    my %params;
     if $dis {
-        $disposition = ~($dis ~~ /^<-[;]>+/);
-        if $dis ~~ s/^<-[;]>+\;// {
-            $params = self.parse-header-attributes(';' ~ $dis);
-        } else {
-            $params = Hash.new;
-        }
+        my $dis-parsed = Email::MIME::AttributeHeaderParsing::parse-content-disposition($dis);
+        $disposition = $dis-parsed<type>;
+        %params = $dis-parsed<attributes>;
     } else {
         $disposition = 'inline';
-        $params = Hash.new;
+        %params = Hash.new;
     }
 
     # update filename
     if $filename {
-        $params<filename> = $filename;
+        %params<filename> = $filename;
     } else {
-        $params<filename>:delete;
+        %params<filename>:delete;
     }
 
     # rewrite header
-    $dis = $disposition;
-    for $params.keys {
-        $dis ~= '; ' ~ $_ ~ '="' ~ $params{$_} ~ '"';
-    }
+    $dis = Email::MIME::AttributeHeaderParsing::compose-content-disposition($disposition, %params);
     self.header-set('Content-Disposition', $dis);
 }
 
@@ -233,7 +224,7 @@ method parts-multipart {
 method parts-set(@parts) {
     my $body = '';
 
-    my $ct = self.parse-content-type(self.content-type);
+    my $ct = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
 
     if +@parts > 1 || $!ct<type> eq 'multipart' {
         $ct<attributes><boundary> //= self!create-boundary;
@@ -251,7 +242,7 @@ method parts-set(@parts) {
     } elsif +@parts == 1 {
         my $part = @parts[0];
         $body = $part.body;
-        my $thispart_ct = self.parse-content-type($part.content-type);
+        my $thispart_ct = Email::MIME::AttributeHeaderParsing::parse-content-type($part.content-type);
         $ct<type> = $thispart_ct<type>;
         $ct<subtype> = $thispart_ct<subtype>;
         self.encoding-set($part.header('Content-Transfer-Encoding'));
@@ -280,7 +271,7 @@ method walk-parts($callback) {
 }
 
 method boundary-set($data) {
-    my $ct-hash = self.parse-content-type(self.content-type);
+    my $ct-hash = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
     if $data {
         $ct-hash<attributes><boundary> = $data;
     } else {
@@ -299,7 +290,7 @@ method content-type(){
 }
 
 method content-type-set($ct) {
-    my $ct-hash = self.parse-content-type($ct);
+    my $ct-hash = Email::MIME::AttributeHeaderParsing::parse-content-type($ct);
     $ct-hash<attributes> = $!ct<attributes> if $!ct && $!ct<attributes> && !$ct-hash<attributes>;
     self!compose-content-type($ct-hash);
     self!reset-cids;
@@ -308,7 +299,7 @@ method content-type-set($ct) {
 
 # TODO: make the next three methods into a macro call
 method charset-set($data) {
-    my $ct-hash = self.parse-content-type(self.content-type);
+    my $ct-hash = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
     if $data {
         $ct-hash<attributes><charset> = $data;
     } else {
@@ -318,7 +309,7 @@ method charset-set($data) {
     return $data;
 }
 method name-set($data) {
-    my $ct-hash = self.parse-content-type(self.content-type);
+    my $ct-hash = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
     if $data {
         $ct-hash<attributes><name> = $data;
     } else {
@@ -328,7 +319,7 @@ method name-set($data) {
     return $data;
 }
 method format-set($data) {
-    my $ct-hash = self.parse-content-type(self.content-type);
+    my $ct-hash = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
     if $data {
         $ct-hash<attributes><format> = $data;
     } else {
@@ -354,11 +345,10 @@ method as-string {
 }
 
 method !compose-content-type($ct-hash) {
-    my $ct = $ct-hash<type> ~ '/' ~ $ct-hash<subtype>;
-    for $ct-hash<attributes>.keys -> $attr {
-        $ct ~= "; " ~ $attr ~ '="' ~ $ct-hash<attributes>{$attr} ~ '"';
-    }
-    self.header-set('Content-Type', $ct);
+    self.header-set: 'Content-Type', Email::MIME::AttributeHeaderParsing::compose-content-type(
+        $ct-hash<type>,
+        $ct-hash<subtype>,
+        $ct-hash<attributes>);
     $!ct = $ct-hash;
 }
 
@@ -367,7 +357,7 @@ method !get-cid {
 }
 
 method !reset-cids {
-    my $ct-hash = self.parse-content-type(self.content-type);
+    my $ct-hash = Email::MIME::AttributeHeaderParsing::parse-content-type(self.content-type);
 
     if self.parts ~~ Array && +self.parts > 1 {
         if $ct-hash<subtype> eq 'alternative' {

@@ -22,7 +22,7 @@
     "Email::MIME::Encoder::Base64Native": "lib/Email/MIME/Encoder/Base64Native.pm6",
     "Email::MIME::Exceptions": "lib/Email/MIME/Exceptions.pm6",
     "Email::MIME::Header": "lib/Email/MIME/Header.pm6",
-    "Email::MIME::ParseContentType": "lib/Email/MIME/ParseContentType.pm6"
+    "Email::MIME::AttributeHeaderParsing": "lib/Email/MIME/AttributeHeaderParsing.pm6"
   },
   "resources": [
   ],
