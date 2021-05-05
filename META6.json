@@ -18,12 +18,13 @@
   "perl": "6.*",
   "provides": {
     "Email::MIME": "lib/Email/MIME.pm6",
+    "Email::MIME::AttributeHeaderParsing": "lib/Email/MIME/AttributeHeaderParsing.pm6",
     "Email::MIME::Encoder::Base64": "lib/Email/MIME/Encoder/Base64.pm6",
     "Email::MIME::Encoder::Base64Native": "lib/Email/MIME/Encoder/Base64Native.pm6",
     "Email::MIME::Exceptions": "lib/Email/MIME/Exceptions.pm6",
-    "Email::MIME::Header": "lib/Email/MIME/Header.pm6",
-    "Email::MIME::AttributeHeaderParsing": "lib/Email/MIME/AttributeHeaderParsing.pm6"
+    "Email::MIME::Header": "lib/Email/MIME/Header.pm6"
   },
+  "raku": null,
   "resources": [
   ],
   "source-url": "git://github.com/retupmoca/p6-Email-MIME.git",
@@ -36,5 +37,5 @@
   ],
   "test-depends": [
   ],
-  "version": "2.0.4"
+  "version": "2.0.5"
 }
