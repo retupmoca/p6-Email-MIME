@@ -15,7 +15,6 @@
   "license": "CC0-1.0",
   "meta-version": "0",
   "name": "Email::MIME",
-  "perl": "6.*",
   "provides": {
     "Email::MIME": "lib/Email/MIME.pm6",
     "Email::MIME::AttributeHeaderParsing": "lib/Email/MIME/AttributeHeaderParsing.pm6",
@@ -37,5 +36,5 @@
   ],
   "test-depends": [
   ],
-  "version": "2.0.5"
+  "version": "2.0.6"
 }
