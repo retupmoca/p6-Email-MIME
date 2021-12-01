@@ -1,8 +1,8 @@
 {
-  "auth": "github:retupmoca",
+  "auth": "zef:rbt",
   "authors": [
     "github:retupmoca",
-    "Rod Taylor <rbt@cpan.org>"
+    "Rod Taylor <raku@rbt.ca>"
   ],
   "build-depends": [
   ],
