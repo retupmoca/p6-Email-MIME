@@ -76,7 +76,9 @@ method set-encoding-handler($encoding, $handler){
 }
 
 method header-str($header, :$multi) {
-    my $values = self.header($header, :$multi);
+    unless my $values = self.header($header, :$multi) {
+        return $multi ?? () !! Nil
+    }
     for $values.list -> $value is rw {
         $value = EncodedHeader.parse($value, :actions(EncodedHeader::Actions.new)).made;
     }
