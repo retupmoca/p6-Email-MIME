@@ -29,7 +29,7 @@ my grammar AttributeHeader {
         <-[\s']>+
     }
     token name {
-        \w+
+        <[\w-]>+
     }
     token value {
         <-[";]>+
