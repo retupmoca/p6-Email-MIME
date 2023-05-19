@@ -9,6 +9,6 @@ jobs:
       uses: actions/checkout@v3
     - name: Runs tests
       id: tests
-      uses: Raku/setup-raku@v1
+      uses: JJ/raku-test-action@v2
       env:
         NETWORK_TESTING: YES
