@@ -1,6 +1,8 @@
 Revision history for Email::MIME
 
 {{$NEXT}}
+
+2.0.7  2023-05-19T08:56:06-04:00
     - header-str returns Nil when not found
     - Allow attribute names to contain '-'
 
