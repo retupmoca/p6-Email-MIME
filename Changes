@@ -1,0 +1,6 @@
+Revision history for Email::MIME
+
+{{$NEXT}}
+    - header-str returns Nil when not found
+    - Allow attribute names to contain '-'
+

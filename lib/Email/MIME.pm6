@@ -8,7 +8,7 @@ use MIME::QuotedPrint;
 use Email::MIME::Encoder::Base64;
 use Email::MIME::Encoder::Base64Native;
 
-unit class Email::MIME is Email::Simple;
+unit class Email::MIME:ver($?DISTRIBUTION.meta<ver>):api($?DISTRIBUTION.meta<api>):auth($?DISTRIBUTION.meta<auth>) is Email::Simple;
 
 has $!ct;
 has @!parts;
