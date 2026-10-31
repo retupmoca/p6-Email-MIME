@@ -1,6 +1,6 @@
 unit role Email::MIME::ParseContentType;
 
-grammar ContentTypeHeader {
+my grammar ContentTypeHeader {
     token TOP {
         ^ <type> \/ <subtype> \s* <params>? $
     }
@@ -35,7 +35,10 @@ method parse-content-type (Str $content-type) {
     
     try {
         my $parsed = ContentTypeHeader.parse($content-type);
-        
+
+        # exception is caught by CATCH.
+        X::AdHoc.new.throw("Invalid Content-Type: $content-type") unless $parsed.defined;
+
         $result<type> = ~$parsed<type>;
         $result<subtype> = ~$parsed<subtype>;
         
