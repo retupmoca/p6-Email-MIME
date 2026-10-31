@@ -48,8 +48,8 @@ method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$pa
         }
     }
 
+    # TODO: this is messy
     if $attributes {
-      # TODO: this is messy
         for $attributes.list -> $item {
             my $key;
             my $value;
@@ -85,7 +85,7 @@ method create(:$header is copy, :$header-str is copy, :$attributes is copy, :$pa
                 $self.filename-set($value);
             }
         }
-        ##
+    ##
     }
     
     if $parts {
